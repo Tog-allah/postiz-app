@@ -1,24 +1,30 @@
 services:
-  - type: web             # Service web Node.js pour frontend+backend
-    name: postiz-app
-    runtime: node
-    plan: starter        # ou free (selon le compte)
+  - name: postiz-app
+    type: web
+    env: node
+    plan: starter
     buildCommand: >
       npm install &&
       npm run prisma-generate &&
       npm run prisma-db-push &&
-      nx run-many --target=build --all --parallel
+      npx nx run-many --target=build --all --parallel
     startCommand: >
-      nx run-many --target=serve --projects=backend,frontend --parallel
+      npx nx run-many --target=serve --projects=backend,frontend --parallel
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: "10000"
-      - key: DATABASE_URL        # Connexion à la BD (Supabase Postgres)
-      - key: REDIS_URL           # Connexion à Redis
-      - key: JWT_SECRET          # Secret JWT
-      - key: FRONTEND_URL        # Ex. https://nom-de-votre-app.onrender.com
+        value: "10000" # Port par défaut de Render
+      - key: DATABASE_URL
+        sync: false    # à définir dans le dashboard Render (valeur secrète)
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
       - key: NEXT_PUBLIC_BACKEND_URL
+        sync: false
       - key: BACKEND_INTERNAL_URL
-      # (Ajouter ici d’autres variables si besoin, e.g. CLOUDFLARE_... pour R2, clés OAuth, etc.)
+        sync: false
