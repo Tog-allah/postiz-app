@@ -1,54 +1,24 @@
 services:
-  - type: web
-    name: postiz-api
-    runtime: docker
-    repo: https://github.com/gitroomhq/postiz-app.git
-    plan: free
-    dockerContext: .
-    dockerfilePath: var/docker/Dockerfile.dev
-    buildCommand: ./var/docker/docker-build.sh
-    startCommand: ./var/docker/entrypoint.sh
-    ports:
-      - port: 3000
-        protocol: HTTP
-      - port: 4200
-        protocol: HTTP
+  - type: web             # Service web Node.js pour frontend+backend
+    name: postiz-app
+    runtime: node
+    plan: starter        # ou free (selon le compte)
+    buildCommand: >
+      npm install &&
+      npm run prisma-generate &&
+      npm run prisma-db-push &&
+      nx run-many --target=build --all --parallel
+    startCommand: >
+      nx run-many --target=serve --projects=backend,frontend --parallel
     envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        fromService: postiz-redis
-        property: connectionString
-    region: oregon # Exemple de région, à ajuster si nécessaire
-    autoDeploy: true
-
-  - type: web
-    name: postiz-web
-    runtime: docker
-    repo: https://github.com/gitroomhq/postiz-app.git
-    plan: free
-    dockerContext: .
-    dockerfilePath: var/docker/Dockerfile.dev
-    buildCommand: ./var/docker/docker-build.sh
-    startCommand: ./var/docker/entrypoint.sh
-    ports:
-      - port: 3000
-        protocol: HTTP
-      - port: 4200
-        protocol: HTTP
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        fromService: postiz-redis
-        property: connectionString
-    region: oregon # Exemple de région, à ajuster si nécessaire
-    autoDeploy: true
-
-  - type: redis
-    name: postiz-redis
-    plan: free
-    region: oregon # Exemple de région, à ajuster si nécessaire
-
-version: "1"
-
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL        # Connexion à la BD (Supabase Postgres)
+      - key: REDIS_URL           # Connexion à Redis
+      - key: JWT_SECRET          # Secret JWT
+      - key: FRONTEND_URL        # Ex. https://nom-de-votre-app.onrender.com
+      - key: NEXT_PUBLIC_BACKEND_URL
+      - key: BACKEND_INTERNAL_URL
+      # (Ajouter ici d’autres variables si besoin, e.g. CLOUDFLARE_... pour R2, clés OAuth, etc.)
