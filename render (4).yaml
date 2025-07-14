@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: postiz-api
+    env: docker
+    dockerfilePath: var/docker/Dockerfile.dev
+    dockerContext: .
+    buildCommand: ./var/docker/docker-build.sh
+    startCommand: ./var/docker/entrypoint.sh
+    ports:
+      - name: web
+        port: 3000
+        protocol: HTTP
+      - name: web
+        port: 4200
+        protocol: HTTP
+    envVars:
+      - key: DATABASE_URL
+        fromService: postiz-db
+        property: connectionString
+      - key: REDIS_URL
+        fromService: postiz-redis
+        property: connectionString
+  - type: web
+    name: postiz-web
+    env: docker
+    dockerfilePath: var/docker/Dockerfile.dev
+    dockerContext: .
+    buildCommand: ./var/docker/docker-build.sh
+    startCommand: ./var/docker/entrypoint.sh
+    ports:
+      - name: web
+        port: 3000
+        protocol: HTTP
+      - name: web
+        port: 4200
+        protocol: HTTP
+    envVars:
+      - key: DATABASE_URL
+        fromService: postiz-db
+        property: connectionString
+      - key: REDIS_URL
+        fromService: postiz-redis
+        property: connectionString
+  - type: psql
+    name: postiz-db
+    plan: free
+  - type: redis
+    name: postiz-redis
+    plan: free
+version: "1"
+
