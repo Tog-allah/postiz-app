@@ -2,7 +2,7 @@ services:
   - name: postiz-app
     type: web
     env: node
-    plan: starter
+    plan: free
     buildCommand: >
       npm install &&
       npm run prisma-generate &&
