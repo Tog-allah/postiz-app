@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: postiz-api
+    runtime: docker
+    repo: https://github.com/gitroomhq/postiz-app.git
+    plan: free
+    dockerContext: .
+    dockerfilePath: var/docker/Dockerfile.dev
+    buildCommand: ./var/docker/docker-build.sh
+    startCommand: ./var/docker/entrypoint.sh
+    ports:
+      - port: 3000
+        protocol: HTTP
+      - port: 4200
+        protocol: HTTP
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService: postiz-redis
+        property: connectionString
+    region: oregon # Exemple de région, à ajuster si nécessaire
+    autoDeploy: true
+
+  - type: web
+    name: postiz-web
+    runtime: docker
+    repo: https://github.com/gitroomhq/postiz-app.git
+    plan: free
+    dockerContext: .
+    dockerfilePath: var/docker/Dockerfile.dev
+    buildCommand: ./var/docker/docker-build.sh
+    startCommand: ./var/docker/entrypoint.sh
+    ports:
+      - port: 3000
+        protocol: HTTP
+      - port: 4200
+        protocol: HTTP
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService: postiz-redis
+        property: connectionString
+    region: oregon # Exemple de région, à ajuster si nécessaire
+    autoDeploy: true
+
+  - type: redis
+    name: postiz-redis
+    plan: free
+    region: oregon # Exemple de région, à ajuster si nécessaire
+
+version: "1"
+
